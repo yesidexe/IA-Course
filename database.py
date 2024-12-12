@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class DatabaseManager:
-    def __init__(self, db_url='sqlite:///tareas.db'):
+    def __init__(self, db_url='postgresql://postgres:postgres@localhost:5432/todolist'):
         try:
             self.engine = create_engine(db_url, echo=False)
             Base.metadata.create_all(self.engine)

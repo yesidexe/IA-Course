@@ -48,10 +48,11 @@ def main():
         )
 
         for or_task, new_task in zip(tasks, df_tasks):
-            if new_task['title'] != or_task.title or new_task['completed'] != or_task.completed:
+            if new_task['title'] != or_task.title or new_task['task'] != or_task.task or new_task['completed'] != or_task.completed:
                 crud.update_task(
                     or_task.id, 
                     title=new_task['title'], 
+                    task=new_task['task'],
                     completed=new_task['completed']
                 )
 
