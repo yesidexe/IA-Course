@@ -1,8 +1,10 @@
+import json
 import streamlit as st
 from database import DatabaseManager
 from crud import TodoListCrud
 
 def main():
+    st.set_page_config(layout="wide")
     st.title("📝 Lista de Tareas")
 
     try:
@@ -21,7 +23,7 @@ def main():
     if st.button("Crear Tarea"):
         if task_title and task_description:
             crud.add_task(task_title, task_description)
-            st.success("Tarea creada exitosamente")
+            st.experimental_rerun()
         else:
             st.warning("No pueden haber campos vacios")
 
@@ -37,12 +39,17 @@ def main():
                     "id": task.id, 
                     "title": task.title,
                     "task": task.task,
-                    "completed": task.completed
+                    "completed": task.completed,
+                    "actions": task.id
                 } for task in tasks
             ],
             column_config={
                 "id": st.column_config.NumberColumn(disabled=True),
-                "completada": st.column_config.CheckboxColumn("Completada")
+                "completed": st.column_config.CheckboxColumn("completed"),
+                "actions": st.column_config.ButtonColumn(
+                    "Eliminar", 
+                    help="Eliminar esta tarea",
+                    width="small")
             },
             hide_index=True
         )
@@ -55,14 +62,48 @@ def main():
                     task=new_task['task'],
                     completed=new_task['completed']
                 )
+                
+            if new_task['actions'] == or_task.id and st.button(f"Eliminar {or_task.id}", key=f"delete_{or_task.id}"):
+                crud.drop_task(or_task.id)
+                st.experimental_rerun()
 
-    st.header("Eliminar Tarea")
-    drop_id_task = st.number_input("ID de tarea a eliminar", min_value=1)
-    if st.button("Eliminar Tarea"):
-        if crud.drop_task(drop_id_task):
-            st.success(f"tarea {drop_id_task} eliminada")
-        else:
-            st.warning("No se encontró la tarea")
+    st.header("Importar/Exportar Tareas")
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("Exportar Tareas a JSON"):
+            tasks = crud.get_tasks()
+            data_to_export = [
+                {
+                    "id": task.id, 
+                    "title": task.title, 
+                    "task": task.task,
+                    "completed": task.completed
+                } for task in tasks
+            ]
+            
+            with open("todolist.json", "w") as f:
+                json.dump(data_to_export, f, indent=4)
+            
+            st.success("Tareas exportadas a todolist.json")
+
+    with col2:
+        # Importar tareas
+        json_file = st.file_uploader("Importar Tareas desde JSON", type=['json'])
+        
+        if json_file is not None:
+            try:
+                # Leer archivo JSON
+                data_to_import = json.load(json_file)
+                
+                # Importar tareas
+                if crud.import_tasks(data_to_import):
+                    st.success("Tareas importadas exitosamente")
+                    st.experimental_rerun()
+                else:
+                    st.error("Error al importar tareas")
+            except Exception as e:
+                st.error(f"Error al procesar el archivo JSON: {e}")
 
 if __name__ == "__main__":
     main()

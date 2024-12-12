@@ -66,3 +66,25 @@ class TodoListCrud:
             return False
         finally:
             session.close()
+            
+    def import_tasks(self, json_data):
+        session = self.db_manager.get_session()
+        try:
+            session.query(TodoList).delete()
+            
+            for data in json_data:
+                new_task = TodoList(
+                    title=data['titulo'],
+                    task=data['task'],
+                    completed=data['completed']
+                )
+                session.add(new_task)
+            
+            session.commit()
+            return True
+        except SQLAlchemyError as e:
+            session.rollback()
+            logger.error(f"Error al importar tareas: {e}")
+            return False
+        finally:
+            session.close()
