@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class DatabaseManager:
-    def __init__(self, db_url='postgresql://postgres:postgres@localhost:5432/todolist'):
+    def __init__(self, db_url='sqlite:///todolist.db'):
         try:            
             self.engine = create_engine(db_url, echo=False)
             
