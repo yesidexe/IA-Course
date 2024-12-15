@@ -6,6 +6,7 @@ Aplicación para gestionar tareas. Permite agregar, editar, marcar como completa
 - `crud.py` Gestiona tareas con operaciones CRUD (crear, leer, actualizar, eliminar) usando SQLAlchemy.
 - `database.py` Conexión y creación de la base de datos, gestión de sesiones con SQLAlchemy.
 - `model.py` Define el modelo de datos para la tabla todolist en la base de datos (ID, título, tarea, estado de completado).
+- `requirements.txt` Librerias.
 
 ## **Ambiente de desarrollo**
 - [Python](https://www.python.org/)
@@ -14,7 +15,7 @@ Aplicación para gestionar tareas. Permite agregar, editar, marcar como completa
 - [Sqlite](https://www.sqlite.org/)
 
 ## **Librerias usadas**
-> 📢 Principalmente pondré estas tres librerias, en el archivo `requirements.txt` aparecen más debido a estas librerias descargan otras para funcionar.
+> 📢 Principalmente se usan las siguientes tres librerías. En el archivo ``requirements.txt`` aparecen más debido a que estas descargan otras dependencias necesarias para su funcionamiento.
 - [SQLAlchemy](https://www.sqlalchemy.org/)
 - [Streamlit](https://streamlit.io/)
 - [SQLAlchemy-Utils](https://sqlalchemy-utils.readthedocs.io/en/latest/)
