@@ -3,7 +3,6 @@ import logging
 from model import TodoList
 from sqlalchemy.exc import SQLAlchemyError
 
-
 logger = logging.getLogger(__name__)
 
 class TodoListCrud:
