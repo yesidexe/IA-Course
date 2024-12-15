@@ -1,5 +1,9 @@
-from sqlalchemy.orm.exc import NoResultFound
+import logging
+import json
+from sqlalchemy.exc import SQLAlchemyError
 from model import TodoList
+
+logger = logging.getLogger(__name__)
 
 class TodoListCrud:
     def __init__(self, db_manager):
@@ -11,6 +15,7 @@ class TodoListCrud:
             new_task = TodoList(title=title, task=task, completed=False)
             session.add(new_task)
             session.commit()
+            logger.info(f"Tarea creada con ID: {new_task.id}")
             return new_task.id
         except SQLAlchemyError as e:
             session.rollback()
@@ -20,7 +25,7 @@ class TodoListCrud:
             session.close()
 
     def get_tasks(self):
-        session = self.db_manager.get_session()
+        session = self.db_manager.get_session()        
         try:
             tasks = session.query(TodoList).all()
             return tasks
@@ -42,7 +47,9 @@ class TodoListCrud:
                 if completed is not None:
                     update_task.completed = completed
                 session.commit()
+                logger.info(f"Tarea {task_id} actualizada")
                 return True
+            logger.warning(f"Tarea {task_id} no encontrada para actualizar")
             return False
         except SQLAlchemyError as e:
             session.rollback()
@@ -50,7 +57,7 @@ class TodoListCrud:
             return False
         finally:
             session.close()
-
+            
     def drop_task(self, task_id):
         session = self.db_manager.get_session()
         try:
@@ -58,7 +65,9 @@ class TodoListCrud:
             if drop_task:
                 session.delete(drop_task)
                 session.commit()
+                logger.info(f"Tarea {task_id} eliminada")
                 return True
+            logger.warning(f"Tarea {task_id} no encontrada para eliminar")
             return False
         except SQLAlchemyError as e:
             session.rollback()
@@ -66,25 +75,42 @@ class TodoListCrud:
             return False
         finally:
             session.close()
-            
+    
     def import_tasks(self, json_data):
         session = self.db_manager.get_session()
         try:
-            session.query(TodoList).delete()
+            if not all(isinstance(data, dict) and 'title' in data and 'task' in data for data in json_data):
+                raise ValueError("Datos de entrada inválidos para importar tareas")
             
             for data in json_data:
                 new_task = TodoList(
-                    title=data['titulo'],
+                    title=data['title'],
                     task=data['task'],
-                    completed=data['completed']
+                    completed=data.get('completed', False)
                 )
                 session.add(new_task)
-            
             session.commit()
+            logger.info("Tareas importadas exitosamente")
             return True
-        except SQLAlchemyError as e:
+        except (SQLAlchemyError, ValueError) as e:
             session.rollback()
             logger.error(f"Error al importar tareas: {e}")
             return False
+        finally:
+            session.close()
+
+    # En crud.py
+    def export_tasks(self):
+        session = self.db_manager.get_session()
+        try:
+            tasks = session.query(TodoList).all()
+            tasks_data = [
+                {"title": task.title, "task": task.task, "completed": task.completed}
+                for task in tasks
+            ]
+            return tasks_data
+        except SQLAlchemyError as e:
+            logger.error(f"Error al exportar tareas: {e}")
+            return []
         finally:
             session.close()
