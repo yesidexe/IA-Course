@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Boolean, Text
+from sqlalchemy import Boolean, Column, Integer, Text
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()

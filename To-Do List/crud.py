@@ -1,7 +1,8 @@
 import logging
-import json
-from sqlalchemy.exc import SQLAlchemyError
+
 from model import TodoList
+from sqlalchemy.exc import SQLAlchemyError
+
 
 logger = logging.getLogger(__name__)
 
